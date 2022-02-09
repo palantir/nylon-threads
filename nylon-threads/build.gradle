@@ -1,0 +1,10 @@
+apply plugin: 'com.palantir.external-publish-jar'
+
+dependencies {
+    implementation 'com.palantir.safe-logging:safe-logging'
+    implementation 'com.palantir.safe-logging:preconditions'
+
+    testImplementation 'com.google.guava:guava'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+}
