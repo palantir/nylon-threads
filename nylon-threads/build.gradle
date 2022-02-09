@@ -1,4 +1,5 @@
 apply plugin: 'com.palantir.external-publish-jar'
+apply plugin: 'me.champeau.jmh'
 
 dependencies {
     implementation 'com.palantir.safe-logging:safe-logging'
@@ -7,4 +8,6 @@ dependencies {
     testImplementation 'com.google.guava:guava'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.assertj:assertj-core'
+
+    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess'
 }
