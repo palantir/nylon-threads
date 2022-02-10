@@ -3,7 +3,7 @@ Nylon Threads
 
 Nylon is an artificial [fiber](https://en.wikipedia.org/wiki/Fiber_(computer_science)).
 
-This library provides functinoality to transparently reuse a single pool of threads between
+This library provides functionality to transparently reuse a single pool of threads between
 many executor objects, each of which may be configured with a separate concurrency limit,
 queue size, and observability wrapper.
 
