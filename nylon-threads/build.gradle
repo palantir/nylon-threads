@@ -2,8 +2,10 @@ apply plugin: 'com.palantir.external-publish-jar'
 apply plugin: 'me.champeau.jmh'
 
 dependencies {
+    implementation 'com.palantir.safe-logging:logger'
     implementation 'com.palantir.safe-logging:safe-logging'
     implementation 'com.palantir.safe-logging:preconditions'
+    implementation 'org.jboss.threads:jboss-threads'
 
     testImplementation 'com.google.guava:guava'
     testImplementation 'org.junit.jupiter:junit-jupiter'

@@ -14,6 +14,45 @@ _We expect that this functionality will no longer be needed once
 Usage
 -----
 
+### NylonExecutor
+
+The `NylonExecutor` utility allows a common cached executor to be shared between consumers
+with different constraints, with behavior matching a cached or fixed-size executor, using
+a configurable-sized queue. This utility handles renaming threads when they're in use such
+that the thread-names match what would be expected of an isolated (non-shared) pool.
+
+This is important in applications which use several executors, often work is passed through
+several stages, each of which rely on an executor. When these executors each use their own
+thread pool, sufficient threads must be available for all stages, despite the fact that
+all stages are not (and often cannot be) saturated at all times. Threads use a fairly large
+amount of memory, are expensive to create and park, and impact garbage collectors in
+unexpected ways, so it's advantageous to reuse a smaller pool.
+
+```java
+// Core threadpool is only used to create NylonExecutor views
+Executor threadPool = Executors.newCachedThreadPool();
+
+// All code interacts with these views
+        
+// executorOne emulates a cached executor, it has
+// no thread limit. This is useful because it can be
+// wrapped with metrics, tracing, and logging.
+ExecutorService executorOne = NylonExecutor.builder()
+    .name("one")
+    .executor(threadPool)
+    .build();
+
+// executorTwo emulates a fixed-size executor, it has
+// a thread limit and maximum queue size, despite the
+// thread pool itself providing neither of these features.
+ExecutorService executorTwo = NylonExecutor.builder()
+    .name("two")
+    .executor(threadPool)
+    .maxThreads(5)
+    .queueSize(100)
+    .build();
+```
+
 ### ThreadNames
 
 The [`ThreadNames`](nylon-threads/src/main/java/com/palantir/nylon/threads/ThreadNames.java)
