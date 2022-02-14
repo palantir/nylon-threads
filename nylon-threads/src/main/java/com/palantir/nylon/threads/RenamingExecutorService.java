@@ -100,6 +100,9 @@ final class RenamingExecutorService extends AbstractExecutorService {
 
     static Supplier<String> threadNameSupplier(String baseName) {
         String prefix = Preconditions.checkNotNull(baseName, "Base name is required") + '-';
+        // We create a counter and a thread-local on a per-executor basis. This allows us to map executor thread
+        // names to individual threads on the delegate executor such that when the same thread from the delegate
+        // is reused, it's given the same name.
         AtomicLong index = new AtomicLong();
         ThreadLocal<String> threadNameCache = ThreadLocal.withInitial(() -> prefix + index.getAndIncrement());
         return threadNameCache::get;

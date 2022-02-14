@@ -21,8 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
 
 class NylonExecutorTest {
@@ -66,5 +70,66 @@ class NylonExecutorTest {
         assertThat(uncaughtExceptionHandlerThreadNames)
                 .as("Uncaught exception handler must be called exactly once while the thread is renamed")
                 .containsExactly("foo-0");
+    }
+
+    @Test
+    void testThreadNamesAreReusedWhenDelegateThreadsAreReused() {
+        ExecutorService delegate = Executors.newFixedThreadPool(1);
+        try {
+            ExecutorService executor =
+                    NylonExecutor.builder().name("foo").executor(delegate).build();
+
+            List<String> observedThreadNames = new CopyOnWriteArrayList<>();
+
+            for (int i = 0; i < 2; i++) {
+                assertThat(executor.submit(() -> {
+                            observedThreadNames.add(Thread.currentThread().getName());
+                            return Boolean.TRUE;
+                        }))
+                        .succeedsWithin(Duration.ofSeconds(1));
+            }
+            assertThat(observedThreadNames).hasSize(2).allSatisfy(name -> assertThat(name)
+                    .isEqualTo("foo-0"));
+        } finally {
+            assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
+                    .as("Delegate failed to stop")
+                    .isTrue();
+        }
+    }
+
+    @Test
+    void testThreadNamesAreUniqueWhenDelegateThreadsAreUnique() throws InterruptedException {
+        ExecutorService delegate = Executors.newCachedThreadPool();
+        try {
+            ExecutorService executor =
+                    NylonExecutor.builder().name("foo").executor(delegate).build();
+
+            Set<String> observedThreadNames = ConcurrentHashMap.newKeySet();
+            CountDownLatch latch = new CountDownLatch(1);
+            int threads = 2;
+            CountDownLatch waitingLatch = new CountDownLatch(threads);
+
+            for (int i = 0; i < threads; i++) {
+                executor.execute(() -> {
+                    observedThreadNames.add(Thread.currentThread().getName());
+                    // Prevent the task from exiting after recording thread names, otherwise
+                    // it's possible that both tasks will execute on the same thread.
+                    waitingLatch.countDown();
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
+            waitingLatch.await();
+            latch.countDown();
+            assertThat(observedThreadNames).hasSize(threads).allSatisfy(name -> assertThat(name)
+                    .startsWith("foo-"));
+        } finally {
+            assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
+                    .as("Delegate failed to stop")
+                    .isTrue();
+        }
     }
 }
