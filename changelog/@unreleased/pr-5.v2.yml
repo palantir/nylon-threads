@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: Nylon Executor Implemenation with utility functionality around the
+    jboss-threads ViewExecutor including thread renaming.
+  links:
+  - https://github.com/palantir/nylon-threads/pull/5
