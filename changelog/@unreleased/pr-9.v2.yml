@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix NylonExecutor queue size default value
+  links:
+  - https://github.com/palantir/nylon-threads/pull/9
