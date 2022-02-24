@@ -10,6 +10,7 @@ dependencies {
     testImplementation 'com.google.guava:guava'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.awaitility:awaitility'
 
     jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess'
 }
