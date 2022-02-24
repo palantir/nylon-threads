@@ -17,6 +17,7 @@
 package com.palantir.nylon.threads;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import java.time.Duration;
@@ -27,6 +28,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 class NylonExecutorTest {
@@ -126,6 +130,94 @@ class NylonExecutorTest {
             latch.countDown();
             assertThat(observedThreadNames).hasSize(threads).allSatisfy(name -> assertThat(name)
                     .startsWith("foo-"));
+        } finally {
+            assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
+                    .as("Delegate failed to stop")
+                    .isTrue();
+        }
+    }
+
+    @Test
+    void testFixedSizeExecutorAllowsQueueing() throws InterruptedException {
+        ExecutorService delegate = Executors.newCachedThreadPool();
+        try {
+            ExecutorService executor = NylonExecutor.builder()
+                    .name("foo")
+                    .executor(delegate)
+                    .maxThreads(1)
+                    .build();
+
+            CountDownLatch latch = new CountDownLatch(1);
+            int queuedTasks = 100;
+            CountDownLatch waitingLatch = new CountDownLatch(1);
+            AtomicInteger completed = new AtomicInteger();
+
+            executor.execute(() -> {
+                waitingLatch.countDown();
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                completed.incrementAndGet();
+            });
+            // Subsequent tasks should be queued
+            for (int i = 0; i < 100; i++) {
+                executor.execute(completed::incrementAndGet);
+            }
+
+            waitingLatch.await();
+            assertThat(completed)
+                    .as("Tasks should all be queued behind the initial waiting task")
+                    .hasValue(0);
+            latch.countDown();
+            Awaitility.waitAtMost(Duration.ofSeconds(1))
+                    .untilAsserted(() -> assertThat(completed).hasValue(1 + queuedTasks));
+        } finally {
+            assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
+                    .as("Delegate failed to stop")
+                    .isTrue();
+        }
+    }
+
+    @Test
+    void testMaxQueueSize() throws InterruptedException {
+        ExecutorService delegate = Executors.newCachedThreadPool();
+        try {
+            ExecutorService executor = NylonExecutor.builder()
+                    .name("foo")
+                    .executor(delegate)
+                    .maxThreads(1)
+                    .queueSize(1)
+                    .build();
+
+            CountDownLatch latch = new CountDownLatch(1);
+            CountDownLatch waitingLatch = new CountDownLatch(1);
+            AtomicInteger completed = new AtomicInteger();
+
+            executor.execute(() -> {
+                waitingLatch.countDown();
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                completed.incrementAndGet();
+            });
+            // Subsequent task should be queued
+            executor.execute(completed::incrementAndGet);
+            // Queue is full, executor should throw
+            assertThatThrownBy(() -> executor.execute(completed::incrementAndGet))
+                    .isInstanceOf(RejectedExecutionException.class);
+
+            waitingLatch.await();
+            assertThat(completed)
+                    .as("Tasks should all be queued behind the initial waiting task")
+                    .hasValue(0);
+            // Unblocking the first task will allow the second task to execute immediately after.
+            latch.countDown();
+            Awaitility.waitAtMost(Duration.ofSeconds(1))
+                    .untilAsserted(() -> assertThat(completed).hasValue(2));
         } finally {
             assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
                     .as("Delegate failed to stop")

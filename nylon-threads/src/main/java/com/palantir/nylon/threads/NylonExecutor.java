@@ -135,8 +135,12 @@ public final class NylonExecutor {
             Thread.UncaughtExceptionHandler handler =
                     Objects.requireNonNullElse(uncaughtExceptionHandler, LoggingUncaughtExceptionHandler.INSTANCE);
             int maxThreadsValue = maxThreads.orElse(Integer.MAX_VALUE);
-            // If max-threads is Integer.MAX_VALUE, there's no need for a queue.
-            int queueSizeValue = maxThreadsValue == Integer.MAX_VALUE ? 0 : queueSize.orElse(0);
+
+            int queueSizeValue = maxThreadsValue == Integer.MAX_VALUE
+                    // If max-threads is Integer.MAX_VALUE, there's no need for a queue.
+                    ? 0
+                    // Otherwise, the provided queue size should be used, default unlimited (Integer.MAX_VALUE)
+                    : queueSize.orElse(Integer.MAX_VALUE);
             return new RenamingExecutorService(
                     ViewExecutor.builder(Preconditions.checkNotNull(executor, "Executor is required"))
                             .setMaxSize(maxThreadsValue)
