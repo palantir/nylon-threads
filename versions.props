@@ -3,6 +3,6 @@ com.google.guava:guava = 31.1-jre
 com.palantir.safe-logging:* = 1.26.0
 org.jboss.threads:* = 3.4.2.Final
 org.junit.jupiter:* = 5.8.2
-org.assertj:assertj-core = 3.22.0
+org.assertj:assertj-core = 3.23.1
 org.openjdk.jmh:* = 1.35
 org.awaitility:awaitility = 4.2.0
