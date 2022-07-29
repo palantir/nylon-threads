@@ -1,8 +1,8 @@
 com.fasterxml.jackson.core:jackson-databind = 2.13.2.1
 com.google.guava:guava = 31.1-jre
-com.palantir.safe-logging:* = 1.26.0
+com.palantir.safe-logging:* = 3.0.0
 org.jboss.threads:* = 3.4.2.Final
-org.junit.jupiter:* = 5.8.2
+org.junit.jupiter:* = 5.9.0
 org.assertj:assertj-core = 3.23.1
 org.openjdk.jmh:* = 1.35
 org.awaitility:awaitility = 4.2.0
