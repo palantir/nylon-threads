@@ -6,7 +6,7 @@ com.palantir.safe-logging:logger-spi:3.0.0 (2 constraints: 0b1e2f7a)
 com.palantir.safe-logging:preconditions:3.0.0 (1 constraints: 0505fa35)
 com.palantir.safe-logging:safe-logging:3.0.0 (4 constraints: 7633be58)
 org.jboss.logging:jboss-logging:3.4.1.Final (1 constraints: db0f3c8f)
-org.jboss.threads:jboss-threads:3.4.2.Final (1 constraints: 2307d85a)
+org.jboss.threads:jboss-threads:3.5.0.Final (1 constraints: 2207d35a)
 org.slf4j:slf4j-api:1.7.31 (1 constraints: 471091b6)
 org.wildfly.common:wildfly-common:1.5.0.Final (1 constraints: d90f288f)
 
