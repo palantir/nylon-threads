@@ -78,3 +78,4 @@ Run one of the following commands:
 
 * `./gradlew idea` for IntelliJ
 * `./gradlew eclipse` for Eclipse
+test

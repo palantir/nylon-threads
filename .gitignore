@@ -32,3 +32,4 @@ out/
 
 # Log Files
 */var/log/
+.git/
