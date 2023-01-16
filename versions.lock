@@ -19,7 +19,7 @@ com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 c
 com.google.j2objc:j2objc-annotations:1.3 (1 constraints: b809eda0)
 net.bytebuddy:byte-buddy:1.12.21 (1 constraints: 7d0bbfea)
 org.apiguardian:apiguardian-api:1.1.2 (5 constraints: 105480ac)
-org.assertj:assertj-core:3.24.1 (1 constraints: 3c05463b)
+org.assertj:assertj-core:3.24.2 (1 constraints: 3d05473b)
 org.awaitility:awaitility:4.2.0 (1 constraints: 08050536)
 org.checkerframework:checker-qual:3.12.0 (1 constraints: 480a3bbf)
 org.hamcrest:hamcrest:2.1 (1 constraints: 6f0b2cce)
