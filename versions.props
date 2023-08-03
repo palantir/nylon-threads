@@ -4,5 +4,5 @@ com.palantir.safe-logging:* = 3.6.0
 org.jboss.threads:* = 3.5.0.Final
 org.junit.jupiter:* = 5.10.0
 org.assertj:assertj-core = 3.24.2
-org.openjdk.jmh:* = 1.36
+org.openjdk.jmh:* = 1.37
 org.awaitility:awaitility = 4.2.0
