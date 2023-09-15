@@ -16,6 +16,7 @@
 
 package com.palantir.nylon.threads;
 
+import com.palantir.logsafe.Safe;
 import com.palantir.logsafe.SafeArg;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import com.palantir.logsafe.logger.SafeLogger;
@@ -80,10 +81,19 @@ public final class VirtualThreads {
         /** Alias to the jdk-21 {@code Thread.ofVirtual()} API. */
         VirtualThreadBuilder ofVirtual();
 
+        /**
+         * This type is equivalent to the Thread.Builder.OfVirtual returned by {@code Thread.ofVirtual()} in JDK-21+.
+         * @see <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.Builder.OfVirtual.html">Thread.Builder.OfVirtual</a>
+         */
         interface VirtualThreadBuilder {
-            VirtualThreadBuilder name(String name);
+            /** Sets the threads name. */
+            VirtualThreadBuilder name(@Safe String name);
 
-            VirtualThreadBuilder name(String prefix, long start);
+            /**
+             * Sets the threads name prefix, and the starting value of a counter which is appended to the prefix and
+             * incremented for subsequent threads.
+             */
+            VirtualThreadBuilder name(@Safe String prefix, long start);
 
             VirtualThreadBuilder inheritInheritableThreadLocals(boolean inherit);
 
