@@ -170,10 +170,11 @@ public final class VirtualThreads {
         }
 
         @Override
-        @SuppressWarnings({"SafeLoggingPropagation", "IllegalSafeLoggingArgument"})
         public VirtualThreadBuilder ofVirtual() {
             try {
-                return new ReflectiveVirtualThreadBuilder(threadOfVirtual.invoke());
+                // This could use the stricter '.invoke()' method, however
+                // error-prone dataflow fails with "IndexOutOfBoundsException: -1"
+                return new ReflectiveVirtualThreadBuilder(threadOfVirtual.invokeWithArguments());
             } catch (RuntimeException | Error e) {
                 throw e;
             } catch (Throwable t) {
