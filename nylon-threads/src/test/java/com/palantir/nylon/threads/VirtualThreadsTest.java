@@ -36,17 +36,17 @@ import org.junit.jupiter.api.Test;
 class VirtualThreadsTest {
 
     @Test
-    public void nonVirtualThread() {
+    void nonVirtualThread() {
         assertThat(VirtualThreads.isVirtual(new Thread())).isFalse();
     }
 
     @Test
-    public void virtualThreadSupportIsPresent() {
+    void virtualThreadSupportIsPresent() {
         assertThat(VirtualThreads.get()).isPresent();
     }
 
     @Test
-    public void factory() throws ExecutionException, InterruptedException {
+    void factory() throws ExecutionException, InterruptedException {
         VirtualThreadSupport support = VirtualThreads.get().orElseThrow();
         SettableFuture<Boolean> threadIsVirtual = SettableFuture.create();
         Thread thread = support.ofVirtual()
@@ -57,7 +57,7 @@ class VirtualThreadsTest {
     }
 
     @Test
-    public void name() {
+    void name() {
         String expected = "my-thread";
         Thread thread =
                 VirtualThreads.get().orElseThrow().ofVirtual().name(expected).unstarted(Runnables.doNothing());
@@ -65,7 +65,7 @@ class VirtualThreadsTest {
     }
 
     @Test
-    public void namePrefix() {
+    void namePrefix() {
         Thread thread = VirtualThreads.get()
                 .orElseThrow()
                 .ofVirtual()
@@ -75,7 +75,7 @@ class VirtualThreadsTest {
     }
 
     @Test
-    public void inheritedThreadLocalsEnabled() throws ExecutionException, InterruptedException {
+    void inheritedThreadLocalsEnabled() throws ExecutionException, InterruptedException {
         SettableFuture<String> result = SettableFuture.create();
         InheritableThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
         inheritableThreadLocal.set("parent-thread");
@@ -89,7 +89,7 @@ class VirtualThreadsTest {
     }
 
     @Test
-    public void inheritedThreadLocalsDisabled() throws ExecutionException, InterruptedException {
+    void inheritedThreadLocalsDisabled() throws ExecutionException, InterruptedException {
         SettableFuture<String> result = SettableFuture.create();
         InheritableThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
         inheritableThreadLocal.set("parent-thread");
@@ -103,7 +103,7 @@ class VirtualThreadsTest {
     }
 
     @Test
-    public void uncaughtExceptionHandler() {
+    void uncaughtExceptionHandler() {
         UncaughtExceptionHandler customExceptionHandler = (_thread, _throwable) -> {};
         Thread thread = VirtualThreads.get()
                 .orElseThrow()
@@ -114,13 +114,13 @@ class VirtualThreadsTest {
     }
 
     @Test
-    public void unstarted() {
+    void unstarted() {
         Thread thread = VirtualThreads.get().orElseThrow().ofVirtual().unstarted(Runnables.doNothing());
         assertThat(thread.getState()).isEqualTo(Thread.State.NEW);
     }
 
     @Test
-    public void start() {
+    void start() {
         Thread thread = VirtualThreads.get().orElseThrow().ofVirtual().start(Runnables.doNothing());
         Awaitility.waitAtMost(Duration.ofSeconds(3))
                 .untilAsserted(() -> assertThat(thread.getState()).isEqualTo(Thread.State.TERMINATED));
