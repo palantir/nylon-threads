@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility functionality to allow libraries which compile for earlier JDKs
@@ -37,19 +36,18 @@ import org.jetbrains.annotations.Nullable;
 public final class VirtualThreads {
     private static final SafeLogger log = SafeLoggerFactory.get(VirtualThreads.class);
 
-    @Nullable
-    private static final VirtualThreadSupport VIRTUAL_THREAD_SUPPORT = maybeInitialize();
+    private static final Optional<VirtualThreadSupport> VIRTUAL_THREAD_SUPPORT = maybeInitialize();
 
     public static boolean isVirtual(Thread thread) {
-        return VIRTUAL_THREAD_SUPPORT != null && VIRTUAL_THREAD_SUPPORT.isVirtual(thread);
+        return VIRTUAL_THREAD_SUPPORT.isPresent()
+                && VIRTUAL_THREAD_SUPPORT.get().isVirtual(thread);
     }
 
     public static Optional<VirtualThreadSupport> get() {
-        return Optional.ofNullable(VIRTUAL_THREAD_SUPPORT);
+        return VIRTUAL_THREAD_SUPPORT;
     }
 
-    @Nullable
-    private static VirtualThreadSupport maybeInitialize() {
+    private static Optional<VirtualThreadSupport> maybeInitialize() {
         int featureVersion = Runtime.version().feature();
         if (featureVersion < 21) {
             if (log.isDebugEnabled()) {
@@ -57,13 +55,13 @@ public final class VirtualThreads {
                         "Virtual threads are not available prior to jdk21",
                         SafeArg.of("currentVersion", featureVersion));
             }
-            return null;
+            return Optional.empty();
         }
         try {
-            return new ReflectiveVirtualThreadSupport();
+            return Optional.of(new ReflectiveVirtualThreadSupport());
         } catch (Throwable t) {
             log.warn("Virtual thread support is not available", t);
-            return null;
+            return Optional.empty();
         }
     }
 
