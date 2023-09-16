@@ -66,6 +66,22 @@ This may reduce the utility of some observability tools which interact with gene
 however JVM-based tools like jstack and logging frameworks continue to use the java thread name
 as expected.
 
+### VirtualThreads
+
+The [`ThreadNames`](nylon-threads/src/main/java/com/palantir/nylon/threads/VirtualThreads.java)
+utility allows virtual threads to be safely used from libraries which target older jdk bytecode
+when run using a jdk-21+ runtime.
+
+VirtualThreads provides a static utility method to detect virtual threads:
+```java
+boolean virtual = VirtualThreads.isVirtual(Thread.currentThread())
+```
+
+As well as an API shim over `Thread.ofVirtual()`:
+```java
+VirtualThreadSupport support = VirtualThreads.get().orElseThrow();
+ExecutorService executor = support.newThreadPerTaskExecutor(support.ofVirtual().factory());
+```
 
 Gradle Tasks
 ------------

@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Virtual threads APIs
+  links:
+  - https://github.com/palantir/nylon-threads/pull/211
