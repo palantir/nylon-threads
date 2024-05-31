@@ -14,7 +14,7 @@ org.wildfly.common:wildfly-common:1.7.0.Final (1 constraints: db0f3a8f)
 [Test dependencies]
 com.google.code.findbugs:jsr305:3.0.2 (1 constraints: 170aecb4)
 com.google.guava:failureaccess:1.0.2 (1 constraints: 150ae2b4)
-com.google.guava:guava:33.2.0-jre (1 constraints: a8066b53)
+com.google.guava:guava:33.2.1-jre (1 constraints: a9067053)
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 constraints: bd17c918)
 com.google.j2objc:j2objc-annotations:3.0.0 (1 constraints: 150aeab4)
 net.bytebuddy:byte-buddy:1.14.16 (1 constraints: 830bcaea)
