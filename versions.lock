@@ -1,4 +1,4 @@
-# Run ./gradlew writeVersionsLock to regenerate this file
+# Run ./gradlew writeVersionsLocks to regenerate this file
 com.google.errorprone:error_prone_annotations:2.26.1 (5 constraints: 9b497093)
 com.palantir.safe-logging:logger:3.7.0 (1 constraints: 0c050f36)
 com.palantir.safe-logging:logger-slf4j:3.7.0 (1 constraints: 050e6842)
