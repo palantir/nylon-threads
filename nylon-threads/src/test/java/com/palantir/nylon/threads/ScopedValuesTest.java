@@ -16,13 +16,12 @@
 
 package com.palantir.nylon.threads;
 
-import com.palantir.nylon.threads.ScopedValues.ScopedValueSupport;
-import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.palantir.nylon.threads.ScopedValues.ScopedValueSupport;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 class ScopedValuesTest {
 
