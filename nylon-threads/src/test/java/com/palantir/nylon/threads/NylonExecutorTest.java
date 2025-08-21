@@ -45,7 +45,7 @@ class NylonExecutorTest {
 
         assertThat(executor.submit(() -> {
                     assertThat(Thread.currentThread().getName()).isEqualTo("foo-0");
-                    return Boolean.TRUE;
+                    return true;
                 }))
                 .succeedsWithin(Duration.ZERO);
 
@@ -88,7 +88,7 @@ class NylonExecutorTest {
             for (int i = 0; i < 2; i++) {
                 assertThat(executor.submit(() -> {
                             observedThreadNames.add(Thread.currentThread().getName());
-                            return Boolean.TRUE;
+                            return true;
                         }))
                         .succeedsWithin(Duration.ofSeconds(1));
             }
