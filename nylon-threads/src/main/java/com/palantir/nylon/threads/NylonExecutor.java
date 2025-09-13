@@ -17,6 +17,7 @@
 package com.palantir.nylon.threads;
 
 import com.palantir.logsafe.Preconditions;
+import com.palantir.logsafe.SafeArg;
 import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -54,6 +55,13 @@ public final class NylonExecutor {
          * Executors factory.
          */
         QueueSizeStage maxThreads(int maxThreads);
+
+        /**
+         * Configures the maximum threads allowed for concurrent execution through this executor facade. If no value is
+         * specified, the default is {@link Integer#MAX_VALUE}, matching the standard-library
+         * Executors factory.
+         */
+        QueueSizeStage maxThreads(OptionalInt maxThreads);
     }
 
     public interface QueueSizeStage extends BuildStage {
@@ -103,11 +111,17 @@ public final class NylonExecutor {
 
         @Override
         public QueueSizeStage maxThreads(int value) {
+            return maxThreads(OptionalInt.of(value));
+        }
+
+        @Override
+        public QueueSizeStage maxThreads(OptionalInt value) {
             Preconditions.checkState(maxThreads.isEmpty(), "maxThreads has already been configured");
-            if (value <= 0) {
-                throw new SafeIllegalArgumentException("maxThreads must be positive");
+            if (value.isPresent() && value.getAsInt() <= 0) {
+                throw new SafeIllegalArgumentException(
+                        "maxThreads must be positive", SafeArg.of("maxThreads", value.getAsInt()));
             }
-            maxThreads = OptionalInt.of(value);
+            maxThreads = value;
             return this;
         }
 

@@ -16,12 +16,16 @@
 
 package com.palantir.nylon.threads;
 
+import static com.palantir.logsafe.testing.Assertions.assertThatLoggableExceptionThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.util.concurrent.MoreExecutors;
+import com.palantir.logsafe.SafeArg;
 import java.time.Duration;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -218,6 +222,46 @@ class NylonExecutorTest {
             latch.countDown();
             Awaitility.waitAtMost(Duration.ofSeconds(1))
                     .untilAsserted(() -> assertThat(completed).hasValue(2));
+        } finally {
+            assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
+                    .as("Delegate failed to stop")
+                    .isTrue();
+        }
+    }
+
+    @Test
+    void testMaxThreads() {
+        ExecutorService delegate = Executors.newCachedThreadPool();
+        try {
+            assertThatCode(() -> NylonExecutor.builder()
+                            .name("foo")
+                            .executor(delegate)
+                            .maxThreads(OptionalInt.of(1))
+                            .build())
+                    .doesNotThrowAnyException();
+
+            assertThatCode(() -> NylonExecutor.builder()
+                            .name("foo")
+                            .executor(delegate)
+                            .maxThreads(OptionalInt.empty())
+                            .build())
+                    .doesNotThrowAnyException();
+
+            assertThatLoggableExceptionThrownBy(() -> NylonExecutor.builder()
+                            .name("foo")
+                            .executor(delegate)
+                            .maxThreads(-1)
+                            .build())
+                    .hasMessageContaining("maxThreads must be positive")
+                    .hasExactlyArgs(SafeArg.of("maxThreads", -1));
+
+            assertThatLoggableExceptionThrownBy(() -> NylonExecutor.builder()
+                            .name("foo")
+                            .executor(delegate)
+                            .maxThreads(OptionalInt.of(-1))
+                            .build())
+                    .hasMessageContaining("maxThreads must be positive")
+                    .hasExactlyArgs(SafeArg.of("maxThreads", -1));
         } finally {
             assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
                     .as("Delegate failed to stop")
