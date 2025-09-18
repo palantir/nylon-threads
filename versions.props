@@ -1,4 +1,4 @@
-com.google.guava:guava = 33.4.8-jre
+com.google.guava:guava = 33.5.0-jre
 com.palantir.safe-logging:* = 3.9.0
 org.jboss.threads:* = 3.9.1
 org.junit.jupiter:* = 5.13.4
