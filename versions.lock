@@ -58,7 +58,7 @@ org.apache.commons:commons-math3:3.6.1 (1 constraints: bf0adbcc)
 
 org.apiguardian:apiguardian-api:1.1.2 (6 constraints: 5366ce6e)
 
-org.assertj:assertj-core:3.27.5 (1 constraints: 4305533b)
+org.assertj:assertj-core:3.27.6 (1 constraints: 4405543b)
 
 org.awaitility:awaitility:4.3.0 (1 constraints: 09050836)
 
