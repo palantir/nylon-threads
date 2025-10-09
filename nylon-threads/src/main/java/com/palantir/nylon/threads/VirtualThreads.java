@@ -35,7 +35,6 @@ import java.util.concurrent.ThreadFactory;
  * to take advantage of virtual threads features on sufficiently new runtimes.
  */
 public final class VirtualThreads {
-    static final String VIRTUAL_THREADS_ENABLE_ON_21_PROPERTY_KEY = "dangerous.do.not.ever.set.virtual.threads.jdk21";
     private static final SafeLogger log = SafeLoggerFactory.get(VirtualThreads.class);
 
     private static final Optional<VirtualThreadSupport> VIRTUAL_THREAD_SUPPORT = maybeInitialize();
@@ -52,13 +51,6 @@ public final class VirtualThreads {
     private static Optional<VirtualThreadSupport> maybeInitialize() {
         int featureVersion = Runtime.version().feature();
         int minFeatureVersion = 24;
-
-        // This is a hack to allow testing of this class while still using JDK-21.
-        String virtualThreadsProperty = System.getProperty(VIRTUAL_THREADS_ENABLE_ON_21_PROPERTY_KEY);
-        if ("true".equalsIgnoreCase(virtualThreadsProperty)) {
-            minFeatureVersion = 21;
-        }
-
         // https://openjdk.org/jeps/491 - Synchronize Virtual Threads without Pinning was released in jdk24
         if (featureVersion < minFeatureVersion) {
             if (log.isDebugEnabled()) {

@@ -27,8 +27,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -36,16 +34,6 @@ import org.junit.jupiter.api.Test;
  * that if data is passed to the underlying APIs, those APIs are implemented correctly.
  */
 class VirtualThreadsTest {
-
-    @BeforeAll
-    static void beforeAll() {
-        System.setProperty(VirtualThreads.VIRTUAL_THREADS_ENABLE_ON_21_PROPERTY_KEY, "true");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        System.clearProperty(VirtualThreads.VIRTUAL_THREADS_ENABLE_ON_21_PROPERTY_KEY);
-    }
 
     @Test
     void nonVirtualThread() {
