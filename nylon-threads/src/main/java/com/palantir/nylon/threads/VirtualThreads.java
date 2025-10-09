@@ -50,10 +50,11 @@ public final class VirtualThreads {
 
     private static Optional<VirtualThreadSupport> maybeInitialize() {
         int featureVersion = Runtime.version().feature();
-        if (featureVersion < 21) {
+        // https://openjdk.org/jeps/491 - Synchronize Virtual Threads without Pinning was released in jdk24
+        if (featureVersion < 24) {
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "Virtual threads are not available prior to jdk21",
+                        "Virtual threads are not available prior to jdk24",
                         SafeArg.of("currentVersion", featureVersion));
             }
             return Optional.empty();
