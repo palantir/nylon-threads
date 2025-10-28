@@ -37,6 +37,7 @@ import java.util.concurrent.ThreadFactory;
 public final class VirtualThreads {
     private static final SafeLogger log = SafeLoggerFactory.get(VirtualThreads.class);
 
+    private static final Optional<VirtualThreadSupport> UNCHECKED_VIRTUAL_THREAD_SUPPORT = maybeInitializeUnchecked();
     private static final Optional<VirtualThreadSupport> VIRTUAL_THREAD_SUPPORT = maybeInitialize();
 
     public static boolean isVirtual(Thread thread) {
@@ -48,11 +49,27 @@ public final class VirtualThreads {
         return VIRTUAL_THREAD_SUPPORT;
     }
 
+    /**
+     * This method does not check if the runtime version is one that safely supports virtual threads (JDK24+). You
+     * should not use this method and should use {@link VirtualThreads#get()} instead.
+     */
+    public static Optional<VirtualThreadSupport> dangerousGet() {
+        return UNCHECKED_VIRTUAL_THREAD_SUPPORT;
+    }
+
+    private static Optional<VirtualThreadSupport> maybeInitializeUnchecked() {
+        try {
+            return Optional.of(new ReflectiveVirtualThreadSupport());
+        } catch (Throwable t) {
+            log.warn("Virtual thread support is not available", t);
+            return Optional.empty();
+        }
+    }
+
     private static Optional<VirtualThreadSupport> maybeInitialize() {
         int featureVersion = Runtime.version().feature();
-        int minFeatureVersion = 24;
         // https://openjdk.org/jeps/491 - Synchronize Virtual Threads without Pinning was released in jdk24
-        if (featureVersion < minFeatureVersion) {
+        if (featureVersion < 24) {
             if (log.isDebugEnabled()) {
                 log.debug(
                         "Virtual threads are not available prior to jdk24",
@@ -60,12 +77,7 @@ public final class VirtualThreads {
             }
             return Optional.empty();
         }
-        try {
-            return Optional.of(new ReflectiveVirtualThreadSupport());
-        } catch (Throwable t) {
-            log.warn("Virtual thread support is not available", t);
-            return Optional.empty();
-        }
+        return UNCHECKED_VIRTUAL_THREAD_SUPPORT;
     }
 
     private VirtualThreads() {}
