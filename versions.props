@@ -1,6 +1,6 @@
 com.google.guava:guava = 33.5.0-jre
 com.palantir.safe-logging:* = 3.9.0
-org.jboss.threads:* = 3.9.1
+org.jboss.threads:* = 3.9.2
 org.junit.jupiter:* = 6.0.1
 org.assertj:assertj-core = 3.27.6
 org.junit.platform:* = 6.0.1
