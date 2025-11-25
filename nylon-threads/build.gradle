@@ -14,3 +14,9 @@ dependencies {
 
     jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess'
 }
+
+moduleJvmArgs {
+    opens = [
+        'java.base/java.lang',
+    ]
+}
