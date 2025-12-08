@@ -34,7 +34,7 @@ public final class ThreadNames {
     public static void setThreadName(Thread thread, String name) {
         Preconditions.checkNotNull(thread, "Thread is required");
         Preconditions.checkNotNull(name, "Thread name is required");
-        THREAD_NAME.set(thread, name);
+        THREAD_NAME.setVolatile(thread, name);
     }
 
     private static VarHandle getThreadNameVarHandle() {
