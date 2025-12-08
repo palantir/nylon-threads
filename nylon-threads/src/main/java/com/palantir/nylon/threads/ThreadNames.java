@@ -18,50 +18,32 @@ package com.palantir.nylon.threads;
 
 import com.palantir.logsafe.Preconditions;
 import com.palantir.logsafe.exceptions.SafeIllegalStateException;
-import java.lang.reflect.Field;
-import java.security.PrivilegedAction;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 
 /** Utility functionality to rename {@link Thread threads} as efficiently as possible. */
-@SuppressWarnings({"UnnecessarilyQualified", "deprecation", "removal"}) // Internal classes should not be imported
 public final class ThreadNames {
 
-    private static final sun.misc.Unsafe unsafe = initUnsafe();
-
-    private static final long threadNameOffset;
-
-    static {
-        try {
-            threadNameOffset = unsafe.objectFieldOffset(Thread.class.getDeclaredField("name"));
-        } catch (NoSuchFieldException e) {
-            throw new SafeIllegalStateException("Failed to find the Thread.name field", e);
-        }
-    }
+    private static final VarHandle THREAD_NAME = getThreadNameVarHandle();
 
     /**
      * Sets the name of a java thread without native overhead to rename the OS thread.
      * Note that unlike {@link Thread#setName(String)} this implementation may not
      * synchronize on the {@code thread} object.
-     *
-     * @see <a href="https://github.com/palantir/atlasdb/pull/5796">atlasdb#5796</a>
      */
     public static void setThreadName(Thread thread, String name) {
         Preconditions.checkNotNull(thread, "Thread is required");
         Preconditions.checkNotNull(name, "Thread name is required");
-        unsafe.putObjectVolatile(thread, threadNameOffset, name);
+        THREAD_NAME.setVolatile(thread, name);
     }
 
-    // prevent avoidable failures in spark/etc where security manager is used
-    @SuppressWarnings("removal")
-    private static sun.misc.Unsafe initUnsafe() {
-        return java.security.AccessController.doPrivileged((PrivilegedAction<sun.misc.Unsafe>) () -> {
-            try {
-                Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-                field.setAccessible(true);
-                return (sun.misc.Unsafe) field.get(null);
-            } catch (ReflectiveOperationException e) {
-                throw new SafeIllegalStateException("Failed to load Unsafe", e);
-            }
-        });
+    private static VarHandle getThreadNameVarHandle() {
+        try {
+            return MethodHandles.privateLookupIn(Thread.class, MethodHandles.lookup())
+                    .findVarHandle(Thread.class, "name", String.class);
+        } catch (ReflectiveOperationException e) {
+            throw new SafeIllegalStateException("Failed to load thread name var handle", e);
+        }
     }
 
     private ThreadNames() {}
