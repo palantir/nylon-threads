@@ -92,8 +92,9 @@ class NylonExecutorTest {
                         }))
                         .succeedsWithin(Duration.ofSeconds(1));
             }
-            assertThat(observedThreadNames).hasSize(2).allSatisfy(name -> assertThat(name)
-                    .isEqualTo("foo-0"));
+            assertThat(observedThreadNames)
+                    .hasSize(2)
+                    .allSatisfy(name -> assertThat(name).isEqualTo("foo-0"));
         } finally {
             assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
                     .as("Delegate failed to stop")
@@ -128,8 +129,9 @@ class NylonExecutorTest {
             }
             waitingLatch.await();
             latch.countDown();
-            assertThat(observedThreadNames).hasSize(threads).allSatisfy(name -> assertThat(name)
-                    .startsWith("foo-"));
+            assertThat(observedThreadNames)
+                    .hasSize(threads)
+                    .allSatisfy(name -> assertThat(name).startsWith("foo-"));
         } finally {
             assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
                     .as("Delegate failed to stop")
