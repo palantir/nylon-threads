@@ -66,7 +66,7 @@ org.hamcrest:hamcrest:2.1 (1 constraints: 6f0b2cce)
 
 org.jspecify:jspecify:1.0.0 (7 constraints: 5370d26f)
 
-org.junit.jupiter:junit-jupiter:6.1.2 (1 constraints: 4a070f70)
+org.junit.jupiter:junit-jupiter:6.1.2 (1 constraints: 75070d77)
 
 org.junit.jupiter:junit-jupiter-api:6.1.2 (3 constraints: 642ff9d9)
 
