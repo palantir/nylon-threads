@@ -74,7 +74,9 @@ as expected.
 
 The [`ThreadNames`](nylon-threads/src/main/java/com/palantir/nylon/threads/VirtualThreads.java)
 utility allows virtual threads to be safely used from libraries which target older jdk bytecode
-when run using a jdk-21+ runtime.
+when run using a jdk-24+ runtime. Using jdk24+ ensures that the changes from
+[JEP-491 - Synchronize Virtual Threads without Pinning](https://openjdk.java.net/jeps/491) are available, preventing
+potential deadlocks from virtual threads being pinned to platform threads.
 
 VirtualThreads provides a static utility method to detect virtual threads:
 ```java
