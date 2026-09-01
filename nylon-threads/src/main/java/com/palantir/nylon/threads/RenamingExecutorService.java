@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 /** This {@link ExecutorService} wrapper renames threads for the duration of task execution. */
 final class RenamingExecutorService extends AbstractExecutorService {
@@ -76,6 +77,8 @@ final class RenamingExecutorService extends AbstractExecutorService {
     }
 
     final class RenamingRunnable implements Runnable {
+        private static final String ORIGINAL_NAME_DELIMITER = "-was-";
+        private static final Pattern ORIGINAL_NAME_PATTERN = Pattern.compile(ORIGINAL_NAME_DELIMITER);
 
         private final Runnable command;
 
@@ -87,13 +90,16 @@ final class RenamingExecutorService extends AbstractExecutorService {
         public void run() {
             final Thread currentThread = Thread.currentThread();
             final String originalName = currentThread.getName();
-            ThreadNames.setThreadName(currentThread, nameSupplier.get());
+            final String newName = nameSupplier.get();
+            ThreadNames.setThreadName(currentThread, newName);
             try {
                 command.run();
             } catch (Throwable t) {
                 handler.uncaughtException(currentThread, t);
             } finally {
-                ThreadNames.setThreadName(currentThread, originalName);
+                ThreadNames.setThreadName(
+                        currentThread,
+                        ORIGINAL_NAME_PATTERN.split(originalName, 2)[0] + ORIGINAL_NAME_DELIMITER + newName);
             }
         }
     }
