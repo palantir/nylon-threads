@@ -190,7 +190,6 @@ public final class VirtualThreads {
             }
         }
 
-        @SuppressWarnings("unused")
         private final class ReflectiveVirtualThreadBuilder implements VirtualThreadBuilder {
 
             private final Object ofVirtualDelegate;
