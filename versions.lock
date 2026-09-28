@@ -2,15 +2,15 @@
 
 com.google.errorprone:error_prone_annotations:2.50.0 (5 constraints: db48a699)
 
-com.palantir.safe-logging:logger:3.19.0 (1 constraints: 3f05503b)
+com.palantir.safe-logging:logger:3.20.0 (1 constraints: 3705393b)
 
-com.palantir.safe-logging:logger-slf4j:3.19.0 (1 constraints: 380ea250)
+com.palantir.safe-logging:logger-slf4j:3.20.0 (1 constraints: 300e8b50)
 
-com.palantir.safe-logging:logger-spi:3.19.0 (2 constraints: 7f1ebab1)
+com.palantir.safe-logging:logger-spi:3.20.0 (2 constraints: 6f1e0cb0)
 
-com.palantir.safe-logging:preconditions:3.19.0 (1 constraints: 3f05503b)
+com.palantir.safe-logging:preconditions:3.20.0 (1 constraints: 3705393b)
 
-com.palantir.safe-logging:safe-logging:3.19.0 (4 constraints: 5e34b007)
+com.palantir.safe-logging:safe-logging:3.20.0 (4 constraints: 3e347dfe)
 
 io.smallrye.common:smallrye-common-annotation:2.20.0 (1 constraints: ef0d0144)
 
