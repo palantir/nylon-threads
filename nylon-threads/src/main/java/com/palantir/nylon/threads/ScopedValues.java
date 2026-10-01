@@ -335,24 +335,24 @@ public final class ScopedValues {
     }
 
     private interface WithReflectiveScopedValueSupport<T, R> {
-        R get(Class<?> clazz, ReflectiveScopedValueSupport<T> v);
+        R get(Class<?> clazz, ReflectiveScopedValueSupport<T> scopedValue);
     }
 
     private static <T, R> R withReflectiveScopedValueSupport(
-            ScopedValueSupport<T> v, WithReflectiveScopedValueSupport<T, R> op) {
+            ScopedValueSupport<T> scopedValue, WithReflectiveScopedValueSupport<T, R> op) {
         if (IS_SUPPORTED.isPresent()) {
-            if (v instanceof ReflectiveScopedValueSupport<T> r) {
-                return op.get(IS_SUPPORTED.get(), r);
+            if (scopedValue instanceof ReflectiveScopedValueSupport<T> reflectiveScopedValue) {
+                return op.get(IS_SUPPORTED.get(), reflectiveScopedValue);
             }
         }
         throw new SafeRuntimeException("Scoped value support is not available");
     }
 
     private static <T> void withReflectiveScopedValueSupport(
-            ScopedValueSupport<T> v, BiConsumer<Class<?>, ReflectiveScopedValueSupport<T>> op) {
+            ScopedValueSupport<T> scopedValue, BiConsumer<Class<?>, ReflectiveScopedValueSupport<T>> op) {
         if (IS_SUPPORTED.isPresent()) {
-            if (v instanceof ReflectiveScopedValueSupport<T> r) {
-                op.accept(IS_SUPPORTED.get(), r);
+            if (scopedValue instanceof ReflectiveScopedValueSupport<T> reflectiveScopedValue) {
+                op.accept(IS_SUPPORTED.get(), reflectiveScopedValue);
                 return;
             }
         }
