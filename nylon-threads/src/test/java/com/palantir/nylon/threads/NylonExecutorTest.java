@@ -19,8 +19,17 @@ package com.palantir.nylon.threads;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.Streams;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +38,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class NylonExecutorTest {
 
@@ -225,5 +238,88 @@ class NylonExecutorTest {
                     .as("Delegate failed to stop")
                     .isTrue();
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3, 4, 5})
+    void testMaxThreadsLimitsConcurrentlyRunningThreads(int maxThreads) {
+        AtomicInteger threadsCreated = new AtomicInteger();
+        ExecutorService delegate = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
+                .setDaemon(true)
+                .setNameFormat("test-%d")
+                .setThreadFactory(r -> {
+                    int id = threadsCreated.incrementAndGet();
+                    Thread thread = Executors.defaultThreadFactory().newThread(r);
+                    thread.setName("thread-" + id);
+                    return thread;
+                })
+                .build());
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(maxThreads);
+            int tasks = 3 * maxThreads;
+            List<ListenableFuture<String>> futures = new ArrayList<>(tasks);
+            List<Instant> threadStarts = Collections.synchronizedList(new ArrayList<>(maxThreads));
+            List<Instant> threadEnds = Collections.synchronizedList(new ArrayList<>(maxThreads));
+            ListeningExecutorService executor = MoreExecutors.listeningDecorator(NylonExecutor.builder()
+                    .name("foo")
+                    .executor(delegate)
+                    .maxThreads(maxThreads)
+                    .build());
+            for (int i = 0; i < tasks; i++) {
+                futures.add(executor.submit(() -> {
+                    threadStarts.add(Instant.now());
+                    countDownLatch.countDown();
+                    countDownLatch.await();
+                    Thread thread = Thread.currentThread();
+                    threadEnds.add(Instant.now());
+                    return thread.getName();
+                }));
+            }
+            assertThat(Futures.successfulAsList(futures))
+                    .succeedsWithin(Duration.ofSeconds(10))
+                    .asInstanceOf(InstanceOfAssertFactories.list(String.class))
+                    .hasSize(tasks)
+                    .allSatisfy(value -> assertThat(value).startsWith("foo-"));
+            ThreadPeak threadPeak = peakThreads(threadStarts, threadEnds);
+            assertThat(threadPeak.peak)
+                    .as(
+                            "should have at most %s threads running at once. Starts: %s. Ends: %s. List: %s",
+                            maxThreads, threadStarts, threadEnds, threadPeak.description)
+                    .isLessThanOrEqualTo(maxThreads);
+            assertThat(delegate)
+                    .asInstanceOf(InstanceOfAssertFactories.type(ThreadPoolExecutor.class))
+                    .satisfies(threadPoolExecutor -> {
+                        assertThat(threadPoolExecutor.getCompletedTaskCount()).isEqualTo(tasks);
+                    });
+        } finally {
+            assertThat(MoreExecutors.shutdownAndAwaitTermination(delegate, Duration.ofSeconds(1)))
+                    .as("Delegate failed to stop")
+                    .isTrue();
+        }
+    }
+
+    private record ThreadPeak(int peak, String description) {}
+
+    /**
+     * The maximum number of threads that were running at once. A thread is counted as running if it has a start
+     * instant but not yet an end instant.
+     */
+    private static ThreadPeak peakThreads(List<Instant> starts, List<Instant> ends) {
+        // direction is +1 for starts or -1 for ends
+        record Tick(Instant instant, int direction) {}
+
+        List<Tick> ticks = Streams.concat(
+                        starts.stream().map(instant -> new Tick(instant, 1)),
+                        ends.stream().map(instant -> new Tick(instant, -1)))
+                .sorted(Comparator.comparing(Tick::instant))
+                .toList();
+
+        int running = 0;
+        int max = 0;
+        for (Tick tick : ticks) {
+            running += tick.direction;
+            max = Math.max(max, running);
+        }
+        return new ThreadPeak(max, ticks.toString());
     }
 }

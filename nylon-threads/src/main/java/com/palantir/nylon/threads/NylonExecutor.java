@@ -49,9 +49,11 @@ public final class NylonExecutor {
 
     public interface MaxThreadsStage extends BuildStage {
         /**
-         * Configures the maximum threads allowed for concurrent execution through this executor facade. If no value is
-         * specified, the default is {@link Integer#MAX_VALUE}, matching the standard-library
-         * Executors factory.
+         * Configures the maximum number of threads allowed for concurrent execution through this executor facade. If no
+         * value is specified, the default is {@link Integer#MAX_VALUE}, matching the standard-library Executors factory.
+         * <p>
+         * Note that this does not bound the number of threads created by the underlying delegate executor, which is
+         * configured independently.
          */
         QueueSizeStage maxThreads(int maxThreads);
     }
