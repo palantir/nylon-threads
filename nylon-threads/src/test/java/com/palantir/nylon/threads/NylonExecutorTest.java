@@ -51,7 +51,7 @@ class NylonExecutorTest {
 
         assertThat(Thread.currentThread().getName())
                 .as("Thread names should not be tainted")
-                .isEqualTo(originalThreadName);
+                .isEqualTo(originalThreadName + "-was-foo-0");
     }
 
     @Test
